@@ -3,11 +3,13 @@ const Account = require('../models/Account');
 const bcryptjs = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 const generateAccountNumber = require("../utils/generateAccountNumber");
+const sendEmail = require('../utils/sendEmail');
+const {} = require('../utils/emailTemplates');
 
 
 
 // Endpoint to register users
-exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res, next) => {
     try {
         const {
             firstName,
@@ -18,13 +20,15 @@ exports.registerUser = async (req, res) => {
         } = req.body;
 
         if (!firstName || !lastName || !email || !phoneNumber || !password) {
-            return res.status(400).json({ message: "All fields are required" });
+            res.status(400);
+            throw new Error("All fields are required");
         }
 
         const userExists = await User.findOne({ email });
 
         if (userExists) {
-            return res.status(400).json({ message: "User already exists "});
+            res.status(400);
+            throw new Error("User already exists");
         }
 
         const hashedPassword = await bcryptjs.hash(password, 10);
@@ -44,6 +48,15 @@ exports.registerUser = async (req, res) => {
             accountNumber
         });
 
+        await sendEmail(
+            user.email,
+            "Welcome to SecureBank",
+            welcomeTemplate(
+                user.firstName,
+                account.accountNumber
+            )
+        );
+
         res.status(201).json({
             message: "Account created successfully",
             token: generateToken(user._id),
@@ -52,24 +65,28 @@ exports.registerUser = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+
+        next(error);
+
     }
 };
 
 
 // Endpoint to log in users
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ message: "Email and password are required" });
+            res.status(400);
+            throw new Error("Email and password are required");
         }
 
         const user = await User.findOne({ email }).select("+password");
         
         if (!user) {
-            return res.status(401).json({ message: "Invalid credentials" });
+            res.status(401);
+            throw new Error("Invalid credentials");
         }
 
         const isMatch = await bcryptjs.compare(
@@ -78,7 +95,8 @@ exports.loginUser = async (req, res) => {
         );
 
         if (!isMatch) {
-            return res.status(401).json({ message: "Invalid credentials" });
+            res.status(401);
+            throw new Error("Invalid credentials");
         }
 
         res.status(200).json({
@@ -87,10 +105,10 @@ exports.loginUser = async (req, res) => {
         });
 
         } catch (error) {
-            res.status(500).json({
-                message: error.message
-            });
+
+            next(error);
     }
+
 };
 
 

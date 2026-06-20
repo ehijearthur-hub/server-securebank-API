@@ -21,17 +21,20 @@ const protect = async (req, res, next) => {
             ).select("-password");
 
             if (req.user.isFrozen) {
-                return res.status(401).json({ message: "Account is frozen" });
+                res.status(401);
+                throw new Error("Account is frozen");
             }
 
             next();
 
         } else {
-            return res.status(401).json({ message: "Not authorized, no token" });
+            res.status(401);
+            throw new Error("Not authorized, no token");
         }
 
     } catch (error) {
-        return res.status(401).json({ message: "Not authorized, invalid token" });
+        res.status(401);
+        throw new Error("Not authorized, invalid token");
     }
 
 };

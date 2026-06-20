@@ -24,8 +24,9 @@ app.use(cors());
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/account', require('./routes/accountRoutes'));
 app.use('/api/transaction', require('./routes/transactionRoutes'));
-// app.use('/api/kyc', require('./routes/kycRoutes'));
+app.use('/api/kyc', require('./routes/kycRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use(require('./middleware/errorMiddleware'));
 
 
 app.use((err, req, res, next) => {

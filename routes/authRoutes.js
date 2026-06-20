@@ -6,9 +6,9 @@ const {
     loginUser,
     logoutUser,
     getProfile
-} = require("../controllers/authController");
+} = require('../controllers/authController');
 
-const protect = require("../middleware/authMiddleware");
+const protect = require('../middleware/authMiddleware');
 
 
 router.post(
