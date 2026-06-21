@@ -32,3 +32,6 @@ router.get(
     adminMiddleware,
     getALLKYC
 );
+
+
+module.exports = router;
