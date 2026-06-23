@@ -61,7 +61,8 @@ exports.getBalance = async (req, res, next) => {
 // Endpoint to deposit money 
 exports.deposit = async (req, res, next) => {
     try {
-        const { amount } = req.body;
+        let { amount } = req.body;
+        amount = Number(amount);
 
         if (!amount || amount <= 0) {
 
@@ -110,7 +111,8 @@ exports.deposit = async (req, res, next) => {
             depositTemplate(
                 req.user.firstName,
                 amount,
-                account.balance
+                account.balance,
+                account.currency
             )
         );
 
@@ -130,7 +132,8 @@ exports.deposit = async (req, res, next) => {
 // Endpoint to withdraw money
 exports.withdraw = async (req, res, next) => {
     try { 
-        const { amount } = req.body;
+        let { amount } = req.body;
+        amount = Number(amount);
 
         if (!amount || amount <= 0) {
 
@@ -186,7 +189,8 @@ exports.withdraw = async (req, res, next) => {
             withdrawalTemplate(
                 req.user.firstName,
                 amount,
-                account.balance
+                account.balance,
+                account.currency
             )
         );
 

@@ -16,7 +16,7 @@ router.post(
 );
 
 router.get(
-    "/",
+    "/history",
     protect,
     getTransactionHistory
 );

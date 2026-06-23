@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Account = require('../models/Account');
 const Transaction = require('../models/Transaction');
+const User = require('../models/User');
 const generateTransactionReference = require('../utils/generateTransactionReference');
 const sendEmail = require('../utils/sendEmail');
 const { debitAlertTemplate, creditAlertTemplate } = require('../utils/emailTemplates');
@@ -9,16 +10,17 @@ const { debitAlertTemplate, creditAlertTemplate } = require('../utils/emailTempl
 // Endpoint to transfer money
 exports.transferMoney = async (req, res, next) => {
 
-    const session = mongoose.startSession();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     try {
 
-        session.startSession();
-
         const {
             receiverAccountNumber,
-            amount
+            amount: rawAmount
         } = req.body;
+
+        const amount = Number(rawAmount);
 
         if (!amount || amount <= 0) {
 
@@ -42,7 +44,7 @@ exports.transferMoney = async (req, res, next) => {
             accountNumber: receiverAccountNumber
         }).session(session);
 
-        if (!receiver) {
+        if (!receiverAccount) {
 
            res.status(404);
            
@@ -90,7 +92,7 @@ exports.transferMoney = async (req, res, next) => {
         await Transaction.create(
             [{ 
             sender: senderAccount.owner_id, 
-            receiver: receiverAccountNumber.owner_id,
+            receiver: receiverAccount.owner_id,
             amount,
             type: "Transfer",
             reference
@@ -111,7 +113,8 @@ exports.transferMoney = async (req, res, next) => {
             amount,
             receiverAccount.accountNumber,
             senderAccount.balance,
-            reference
+            reference,
+            senderAccount.currency
         )
     );
 
@@ -123,7 +126,8 @@ exports.transferMoney = async (req, res, next) => {
             amount,
             senderAccount.accountNumber,
             receiverAccount.balance,
-            reference
+            reference,
+            receiverAccount.currency
         )
     );
 

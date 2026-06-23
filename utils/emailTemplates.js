@@ -5,11 +5,11 @@ exports.welcomeTemplate = (
 ) => `
        <h1>Welcome to SecureBank</h1>
             
-       <p>Hello ${user.firstName},</p>
+       <p>Hello ${firstName},</p>
             
        <p>Your account has been created successfully</p>
             
-       <p>Account Number: ${account.accountNumber}</p>
+       <p>Account Number: ${accountNumber}</p>
             
        <p>Thank you for banking with SecureBank.</p>
        `;
@@ -20,15 +20,16 @@ exports.welcomeTemplate = (
 exports.depositTemplate = (
     firstName,
     amount,
-    balance
+    balance,
+    currency
 ) => `
        <h2>Deposit Successful</h2>
 
        <p>Hello ${firstName}, </p>
             
-       <p>Your account has been credited with ${account.currency} ${amount}.</p>
+       <p>Your account has been credited with ${currency} ${amount}.</p>
             
-       <p>Available Balance: ${account.currency} ${balance}</p>
+       <p>Available Balance: ${currency} ${balance}</p>
        `;
 
 
@@ -37,15 +38,16 @@ exports.depositTemplate = (
 exports.withdrawalTemplate = (
     firstName,
     amount,
-    balance
+    balance,
+    currency
 ) => `
        <h2>Withdrawal Successful</h2>
 
        <p>Hello ${firstName}, </p>
             
-       <p>Your account has been debited with ${account.currency} ${amount}.</p>
+       <p>Your account has been debited with ${currency} ${amount}.</p>
             
-       <p>Available Balance: ${account.currency} ${balance}</p>
+       <p>Available Balance: ${currency} ${balance}</p>
        `;
 
 
@@ -56,19 +58,20 @@ exports.debitAlertTemplate = (
     amount,
     receiverAccount,
     balance, 
-    reference
+    reference,
+    currency
 ) => `
        <h2>Transfer Successful</h2>
 
        <p>Hello ${firstName}, </p>
             
-       <p>Your account has been debited ${account.currency} ${amount}.</p>
+       <p>Your account has been debited ${currency} ${amount}.</p>
 
        <p><strong>Recipient Account:</strong> ${receiverAccount}</p>
 
        <p><strong>Reference:</strong> ${reference}</p>
             
-       <p>Available Balance: ${account.currency} ${balance}</p>
+       <p>Available Balance: ${currency} ${balance}</p>
        
        <p>Thank you for banking with SecureBank.</p>
        `;
@@ -81,19 +84,20 @@ exports.creditAlertTemplate = (
     amount,
     senderAccount,
     balance, 
-    reference
+    reference,
+    currency
 ) => `
        <h2>Funds Received</h2>
 
        <p>Hello ${firstName}, </p>
             
-       <p>Your account has been credited ${account.currency} ${amount}.</p>
+       <p>Your account has been credited ${currency} ${amount}.</p>
 
        <p><strong>Sender Account:</strong> ${senderAccount}</p>
 
        <p><strong>Reference:</strong> ${reference}</p>
             
-       <p>Available Balance: ${account.currency} ${balance}</p>
+       <p>Available Balance: ${currency} ${balance}</p>
        
        <p>Thank you for banking with SecureBank.</p>
        `;

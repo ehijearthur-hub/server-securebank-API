@@ -9,7 +9,7 @@ exports.uploadKYC = async (req, res, next) => {
 
         if (!documentType) {
             res.status(400);
-            throw new error("Document type is required");
+            throw new Error("Document type is required");
         };
         
         if (!req.file) {

@@ -4,7 +4,7 @@ const bcryptjs = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 const generateAccountNumber = require("../utils/generateAccountNumber");
 const sendEmail = require('../utils/sendEmail');
-const {} = require('../utils/emailTemplates');
+const { welcomeTemplate } = require('../utils/emailTemplates');
 
 
 
