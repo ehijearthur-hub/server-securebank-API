@@ -2,7 +2,7 @@ const User = require('../models/User');
 const Account = require('../models/Account');
 const Transaction = require('../models/Transaction');
 const KYC = require('../models/KYC');
-const sendMail = require('../utils/sendEmail');
+const sendEmail = require('../utils/sendEmail');
 const { kycApprovedTemplate, kycRejectedTemplate } = require('../utils/emailTemplates');
 
 
@@ -79,7 +79,7 @@ exports.activateAccount = async (req, res, next) => {
 // Endpoint for admin to view all transactions
 exports.getAllTransactions = async (req, res, next) => {
     try {
-        const transactions = await transaction.find().populate("sender").populate("receiver");
+        const transactions = await Transaction.find().populate("sender").populate("receiver");
 
         res.status(200).json(transactions);
 

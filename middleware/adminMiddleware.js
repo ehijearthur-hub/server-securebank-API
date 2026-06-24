@@ -8,7 +8,7 @@ const adminMiddleware = (req, res, next) => {
         );
     }
 
-    if (req.user.role !== "admin") {
+    if (req.user.role?.toLowerCase() !== "admin") {
         
         res.status(403);
         
