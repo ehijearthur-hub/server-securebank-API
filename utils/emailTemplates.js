@@ -16,6 +16,27 @@ exports.welcomeTemplate = (
 
 
 
+exports.forgotPasswordTemplate = (
+    firstName,
+    resetUrl
+) => `
+       <h2>Password Reset Request</h2>
+       
+       <p>Hello ${firstname},<p>
+       
+       <p>We received a request to reset your SecureBank password.</p>
+       
+       <p>Use the link below to reset your password:</p>
+       
+       <a href="${resetUrl}">Reset Password</a>
+       
+       <p>This link will expire in 10 minutes.</p>
+       
+       <p>If you did not request this, please ignore this email.</p>
+       `;
+
+
+
 // Deposit Alert Message
 exports.depositTemplate = (
     firstName,

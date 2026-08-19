@@ -1,10 +1,11 @@
 const User = require('../models/User');
 const Account = require('../models/Account');
+const crypto = require('crypto');
 const bcryptjs = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 const generateAccountNumber = require("../utils/generateAccountNumber");
 const sendEmail = require('../utils/sendEmail');
-const { welcomeTemplate } = require('../utils/emailTemplates');
+const { welcomeTemplate, forgotPasswordTemplate } = require('../utils/emailTemplates');
 
 
 
@@ -109,6 +110,110 @@ exports.loginUser = async (req, res, next) => {
             next(error);
     }
 
+};
+
+
+// Endpoint for forgotten password
+exports.forgotPassword = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            res.status(400);
+            throw new Error("Email is required");
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            res.status(404);
+            throw new Error("User not found");
+        }
+
+// This will generate a random reset token
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+// This will hash the token before saving it
+        const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+// To save hashed token and expiry
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // Basically 10 minutes
+
+        await user.save();
+
+// Reset URL
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+        await sendEmail(
+            user.email,
+            "SecureBank Password Reset",
+            forgotPasswordTemplate(
+                user.firstName,
+                resetUrl
+            )
+        );
+
+        res.status(200).json({
+            message: "Password reset instructions sent to your email"
+        });
+
+    } catch (error) {
+
+        next(error);
+
+    }
+};
+
+
+// Endpoint to reset password
+exports.resetPassword = async (req, res, next) => {
+    try {
+
+        const { token } = req.params;
+
+        const { password } = req.body;
+
+        if (!password) {
+            res.status(400);
+            throw new Error("New password is required");
+        }
+
+// Hash the token received from the URL
+        const hashedToken = crypto.createHash("sha256").update(token).digest("hex")
+
+        const user = await User.findOne({
+
+            resetPasswordToken: hashedToken,
+
+            resetPasswordExpires: {$gt: Date.now()}
+        }).select("+resetPasswordToken");
+
+        if (!user) {
+            res.status(400);
+            throw new Error("Invalid or expired password reset token");
+        }
+
+// Hash the new password
+        const hashedPassword = await bcryptjs.hash( password, 10 );
+
+        user.password = hashedPassword;
+
+// Remove reset token
+        user.resetPasswordToken = undefined;
+
+        user.resetPasswordExpires = undefined;
+
+        await user.save();
+
+        res.status(200).json({
+            message: "Password reset successful"
+        });
+    } catch (error) {
+
+        next(error);
+
+    }
 };
 
 

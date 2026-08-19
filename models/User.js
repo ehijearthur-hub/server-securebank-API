@@ -57,7 +57,18 @@ const userSchema = new mongoose.Schema(
         isFrozen: {
             type: Boolean,
             default: false
-        }
+        },
+
+        resetPasswordToken: {
+            type: String,
+            select: false
+        },
+
+        resetPasswordExpires: {
+            type: Date,
+            select: false
+        },
+        
     }, { timestamps: true }
 )
 
