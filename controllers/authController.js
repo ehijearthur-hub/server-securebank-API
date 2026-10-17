@@ -49,14 +49,18 @@ exports.registerUser = async (req, res, next) => {
             accountNumber
         });
 
-        await sendEmail(
+        // Temporary workaround: don't keep users waiting for a slow welcome email;
+        // move this to background email processing when that infrastructure is available.
+        sendEmail(
             user.email,
             "Welcome to SecureBank",
             welcomeTemplate(
                 user.firstName,
                 account.accountNumber
             )
-        );
+        ).catch(error => {
+            console.error("Welcome email delivery failed:", error);
+        });
 
         res.status(201).json({
             message: "Account created successfully",
