@@ -105,7 +105,9 @@ exports.deposit = async (req, res, next) => {
             type: "Deposit"
         });
 
-        await sendEmail(
+        // Temporary workaround: don't keep users waiting for a slow deposit email;
+        // move this to background email processing when that infrastructure is available.
+        sendEmail(
             req.user.email,
             "Deposit Alert",
             depositTemplate(
@@ -114,7 +116,9 @@ exports.deposit = async (req, res, next) => {
                 account.balance,
                 account.currency
             )
-        );
+        ).catch(error => {
+            console.error("Deposit email delivery failed:", error);
+        });
 
         res.status(200).json({
             message: "Deposit successful",
@@ -183,7 +187,9 @@ exports.withdraw = async (req, res, next) => {
             type: "Withdrawal"
         });
 
-        await sendEmail(
+        // Temporary workaround: don't keep users waiting for a slow withdrawal email;
+        // move this to background email processing when that infrastructure is available.
+        sendEmail(
             req.user.email,
             "Withdrawal Alert",
             withdrawalTemplate(
@@ -192,7 +198,9 @@ exports.withdraw = async (req, res, next) => {
                 account.balance,
                 account.currency
             )
-        );
+        ).catch(error => {
+            console.error("Withdrawal email delivery failed:", error);
+        });
 
         res.status(200).json({
             message: "Withdrawal successful",

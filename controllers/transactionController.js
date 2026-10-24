@@ -102,40 +102,47 @@ exports.transferMoney = async (req, res, next) => {
 
     await session.commitTransaction();
 
-    const senderUser = await User.findById( senderAccount.owner_id );
-    const receiverUser = await User.findById( receiverAccount.owner_id );
-
-    await sendEmail(
-        senderUser.email,
-        "Debit Alert",
-        debitAlertTemplate(
-            senderUser.firstName,
-            amount,
-            receiverAccount.accountNumber,
-            senderAccount.balance,
-            reference,
-            senderAccount.currency
-        )
-    );
-
-    await sendEmail(
-        receiverUser.email,
-        "Credit Alert",
-        creditAlertTemplate(
-            receiverUser.firstName,
-            amount,
-            senderAccount.accountNumber,
-            receiverAccount.balance,
-            reference,
-            receiverAccount.currency
-        )
-    );
-
-    
-
         res.status(200).json({
             message: "Transfer successful",
             senderBalance: senderAccount.balance
+        });
+
+        // Temporary workaround: don't make users wait for email delivery or recipient
+        // lookups; move these notifications to background email processing when available.
+        (async () => {
+            const [senderUser, receiverUser] = await Promise.all([
+                User.findById(senderAccount.owner_id),
+                User.findById(receiverAccount.owner_id)
+            ]);
+
+            await Promise.all([
+                sendEmail(
+                    senderUser.email,
+                    "Debit Alert",
+                    debitAlertTemplate(
+                        senderUser.firstName,
+                        amount,
+                        receiverAccount.accountNumber,
+                        senderAccount.balance,
+                        reference,
+                        senderAccount.currency
+                    )
+                ),
+                sendEmail(
+                    receiverUser.email,
+                    "Credit Alert",
+                    creditAlertTemplate(
+                        receiverUser.firstName,
+                        amount,
+                        senderAccount.accountNumber,
+                        receiverAccount.balance,
+                        reference,
+                        receiverAccount.currency
+                    )
+                )
+            ]);
+        })().catch(error => {
+            console.error("Transfer email delivery failed:", error);
         });
 
     } catch (error) {
